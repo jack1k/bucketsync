@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["DOM", "DOM.Iterable", "ESNext"],
+        "jsx": "react-jsx", // 👈 if using React 17+ with new JSX transform
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "checkJs": false,
+        "isolatedModules": true,
+        "noEmit": true, // Babel does the transpiling
+        "strict": true, // 👈 makes types better but optional — you can turn this off to ease in
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "noFallthroughCasesInSwitch": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+}
