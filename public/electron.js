@@ -129,52 +129,59 @@ app.whenReady()
 
                         await require("open").default(authUrl)
 
+                        let handled = false
                         const server = http.createServer((req, res) => {
-                            if (req.url.includes("/oauth2callback")) {
-                                ;(async () => {
-                                    try {
-                                        const urlObj = new URL(
-                                            req.url,
-                                            redirectUri
-                                        )
-                                        const code =
-                                            urlObj.searchParams.get("code")
-
-                                        const { tokens } =
-                                            await oauth2Client.getToken(code)
-                                        oauth2Client.setCredentials(tokens)
-
-                                        const { google } = require("googleapis")
-                                        const oauth2 = google.oauth2({
-                                            auth: oauth2Client,
-                                            version: "v2",
-                                        })
-                                        const userInfo =
-                                            await oauth2.userinfo.get()
-
-                                        res.writeHead(200, {
-                                            "Content-Type": "text/html",
-                                        })
-                                        res.end(
-                                            "<h2>✅ You may now close this window.</h2>"
-                                        )
-                                        server.close()
-
-                                        resolve({
-                                            tokens,
-                                            email: userInfo.data.email,
-                                        })
-                                    } catch (err) {
-                                        console.error("OAuth error", err)
-                                        if (!res.headersSent) {
-                                            res.writeHead(500)
-                                            res.end("OAuth failed")
-                                        }
-                                        server.close()
-                                        reject(err)
-                                    }
-                                })()
+                            if (!req.url.includes("/oauth2callback")) {
+                                res.writeHead(404)
+                                res.end()
+                                return
                             }
+
+                            if (handled) {
+                                res.writeHead(409)
+                                res.end("Request already handled")
+                                return
+                            }
+                            handled = true
+
+                            ;(async () => {
+                                try {
+                                    const urlObj = new URL(req.url, redirectUri)
+                                    const code = urlObj.searchParams.get("code")
+
+                                    const { tokens } =
+                                        await oauth2Client.getToken(code)
+                                    oauth2Client.setCredentials(tokens)
+
+                                    const { google } = require("googleapis")
+                                    const oauth2 = google.oauth2({
+                                        auth: oauth2Client,
+                                        version: "v2",
+                                    })
+                                    const userInfo = await oauth2.userinfo.get()
+
+                                    res.writeHead(200, {
+                                        "Content-Type": "text/html",
+                                    })
+                                    res.end(
+                                        "<h2>✅ You may now close this window.</h2>"
+                                    )
+                                    server.close()
+
+                                    resolve({
+                                        tokens,
+                                        email: userInfo.data.email,
+                                    })
+                                } catch (err) {
+                                    console.error("OAuth error", err)
+                                    if (!res.headersSent) {
+                                        res.writeHead(500)
+                                        res.end("OAuth failed")
+                                    }
+                                    server.close()
+                                    reject(err)
+                                }
+                            })()
                         })
 
                         server.listen(port)
