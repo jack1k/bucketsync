@@ -34,9 +34,8 @@ app.whenReady()
 
         let watcher = null
 
-        const CLIENT_ID =
-            "971364475888-5k7cl68a5cj9401b3q6s76kmau5ivcvj.apps.googleusercontent.com"
-        const CLIENT_SECRET = "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"
+        const CLIENT_ID = process.env.CLIENT_ID
+        const CLIENT_SECRET = process.env.CLIENT_SECRET
 
         const buildOAuthClient = (redirectUri) =>
             new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, redirectUri)
